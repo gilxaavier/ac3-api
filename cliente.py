@@ -7,7 +7,7 @@ app = Flask (__name__)
 mydb = mysql.connector.connect(
   host="localhost",
   user="root",
-  password="*******",
+  password="********",
   database="ac3"
 )
 
@@ -26,10 +26,10 @@ def getDeveloperById(id):
         d = {"id": desenvolvedor[0], "nome": desenvolvedor[1], "habilidades": desenvolvedor[2].split(",")}
         return jsonify(d)
     else:
-        return jsonify({"mensagem": f"Desenvolvedor com ID {id} não encontrado."}), 404
+        return jsonify({"mensagem": f"Desenvolvedor com ID {id} nao encontrado."}), 404
 
 
-@app.route("/dev/", methods=["POST"])
+@app.route("/cadastro/", methods=["POST"])
 def addDeveloper():
     # Adicionar novo desenvolvedor ao banco de dados
     dados = request.get_json()
@@ -45,7 +45,7 @@ def addDeveloper():
     novo_desenvolvedor = {"id": id, "nome": nome, "habilidades": dados["habilidades"]}
     return jsonify(novo_desenvolvedor)
 
-@app.route("/dev/excluir/<int:id>", methods=["DELETE"])
+@app.route("/dev/<int:id>", methods=["DELETE"])
 def delete_developer(id):
     # Deletar desenvolvedor com o id especificado do banco de dados
     mycursor.execute("DELETE FROM desenvolvedores WHERE id = %s", (id,))
@@ -53,7 +53,7 @@ def delete_developer(id):
 
     # Verificar se algum registro foi afetado pela operação
     if mycursor.rowcount == 0:
-        return jsonify({"status": "erro", "mensagem": "Desenvolvedor não encontrado"}), 404
+        return jsonify({"status": "erro", "mensagem": "Desenvolvedor nao encontrado"}), 404
 
     return jsonify({"status": "sucesso", "mensagem": "Desenvolvedor excluído com sucesso"})
 
