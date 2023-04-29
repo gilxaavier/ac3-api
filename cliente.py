@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request
 import mysql.connector
 app = Flask (__name__)
@@ -18,13 +17,13 @@ mycursor.execute("CREATE TABLE IF NOT EXISTS desenvolvedores (id INT AUTO_INCREM
 @app.route("/dev/<int:id>/", methods=["GET"])
 def getDeveloperById(id):
     # Buscar o desenvolvedor com o ID informado no banco de dados
-    mycursor.execute("SELECT * FROM desenvolvedores WHERE id = %s", (id,))
+    mycursor.execute(f"SELECT * FROM desenvolvedores WHERE id ={id}")
     desenvolvedor = mycursor.fetchone()
 
     if desenvolvedor is not None:
         # Transformar o resultado em um dicionário
-        d = {"id": desenvolvedor[0], "nome": desenvolvedor[1], "habilidades": desenvolvedor[2].split(",")}
-        return jsonify(d)
+        dev = {"id": desenvolvedor[0], "nome": desenvolvedor[1], "habilidades": desenvolvedor[2].split(",")}
+        return jsonify(dev)
     else:
         return jsonify({"mensagem": f"Desenvolvedor com ID {id} nao encontrado."}), 404
 
@@ -35,7 +34,7 @@ def addDeveloper():
     dados = request.get_json()
     nome = dados["nome"]
     habilidades = ",".join(dados["habilidades"])
-    sql = "INSERT INTO desenvolvedores (nome, habilidades) VALUES (%s, %s)"
+    sql = f"INSERT INTO desenvolvedores (nome, habilidades) VALUES ({nome}, {habilidades})"
     val = (nome, habilidades)
     mycursor.execute(sql, val)
     mydb.commit()
@@ -48,7 +47,7 @@ def addDeveloper():
 @app.route("/dev/<int:id>", methods=["DELETE"])
 def delete_developer(id):
     # Deletar desenvolvedor com o id especificado do banco de dados
-    mycursor.execute("DELETE FROM desenvolvedores WHERE id = %s", (id,))
+    mycursor.execute(f"DELETE FROM desenvolvedores WHERE id = {id}")
     mydb.commit()
 
     # Verificar se algum registro foi afetado pela operação
