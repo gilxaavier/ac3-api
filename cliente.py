@@ -6,15 +6,29 @@ app = Flask (__name__)
 mydb = mysql.connector.connect(
   host="localhost",
   user="root",
-  password="********",
+  password="admin",
   database="ac3"
 )
 
 # Criar tabela de desenvolvedores
 mycursor = mydb.cursor()
 mycursor.execute("CREATE TABLE IF NOT EXISTS desenvolvedores (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), habilidades VARCHAR(255))")
+mycursor.execute("USE ac3")
 
-@app.route("/dev/<int:id>/", methods=["GET"])
+@app.route("/dev/", methods=["GET"])
+
+#Retorna todos os desenvolvedores
+def getAllDev():
+    mycursor.execute("SELECT * FROM desenvolvedores")
+    desenvolvedores = mycursor.fetchall()
+    result = []
+    for desenvolvedor in desenvolvedores:
+        dev = {"id": desenvolvedor[0], "nome": desenvolvedor[1], "habilidades": desenvolvedor[2].split(",")}
+        result.append(dev)
+    return jsonify(result)
+
+#Retona desenvolvedor pelo id da busca
+@app.route("/dev/<int:id>", methods=["GET"])
 def getDeveloperById(id):
     # Buscar o desenvolvedor com o ID informado no banco de dados
     mycursor.execute(f"SELECT * FROM desenvolvedores WHERE id ={id}")
@@ -27,9 +41,8 @@ def getDeveloperById(id):
     else:
         return jsonify({"mensagem": f"Desenvolvedor com ID {id} nao encontrado."}), 404
 
-
 @app.route("/cadastro/", methods=["POST"])
-def addDeveloper():
+def addDev():
     # Adicionar novo desenvolvedor ao banco de dados
     dados = request.get_json()
     nome = dados["nome"]
@@ -45,7 +58,7 @@ def addDeveloper():
     return jsonify(novo_desenvolvedor)
 
 @app.route("/dev/<int:id>", methods=["DELETE"])
-def delete_developer(id):
+def deleteDev(id):
     # Deletar desenvolvedor com o id especificado do banco de dados
     mycursor.execute(f"DELETE FROM desenvolvedores WHERE id = {id}")
     mydb.commit()
