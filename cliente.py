@@ -41,21 +41,18 @@ def getDeveloperById(id):
     else:
         return jsonify({"mensagem": f"Desenvolvedor com ID {id} nao encontrado."}), 404
 
-@app.route("/cadastro/", methods=["POST"])
-def addDev():
-    # Adicionar novo desenvolvedor ao banco de dados
-    dados = request.get_json()
-    nome = dados["nome"]
-    habilidades = ",".join(dados["habilidades"])
-    sql = f"INSERT INTO desenvolvedores (nome, habilidades) VALUES ({nome}, {habilidades})"
-    val = (nome, habilidades)
-    mycursor.execute(sql, val)
-    mydb.commit()
 
-    # Retornar dados do desenvolvedor cadastrado
-    id = mycursor.lastrowid
-    novo_desenvolvedor = {"id": id, "nome": nome, "habilidades": dados["habilidades"]}
-    return jsonify(novo_desenvolvedor)
+@app.route("/cadastro/", methods=["POST"]) 
+def addDev(): 
+    # Adicionar novo desenvolvedor ao banco de dados 
+    nome = request.form.get('nome')
+    habilidades = request.form.getlist('habilidades')
+    habilidades_str = ",".join(habilidades)
+    sql = "INSERT INTO desenvolvedores (nome, habilidades) VALUES (%s, %s)"
+    val = (nome, habilidades_str)
+    mycursor.execute(sql, val) 
+    mydb.commit()
+    return "Desenvolvedor adicionado com sucesso!"
 
 @app.route("/dev/<int:id>", methods=["DELETE"])
 def deleteDev(id):
